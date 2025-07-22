@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import jsPDF from 'jspdf';
 import { analyzeWithGemini } from '../lib/gemini';
 
-function PolicyGenerator() {
+function PolicyGenerator({ onNavigate }) {
   const [companyName, setCompanyName] = useState('');
   const [industry, setIndustry] = useState('');
   const [policyType, setPolicyType] = useState('');
@@ -64,40 +64,31 @@ function PolicyGenerator() {
     );
   };
 
-  const clearAllFrameworks = () => {
-    setSelectedFrameworks([]);
-  };
-
-  const clearAllCompliances = () => {
-    setSelectedCompliances([]);
-  };
+  const clearAllFrameworks = () => setSelectedFrameworks([]);
+  const clearAllCompliances = () => setSelectedCompliances([]);
 
   const generatePolicyPDF = async (policyContent, metadata) => {
     const doc = new jsPDF();
+    const margin = 20;
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
-    const margin = 20;
-    const contentWidth = pageWidth - (margin * 2);
-    
-    // Header styling
-    doc.setFillColor(30, 58, 138); // Blue header
-    doc.rect(0, 0, pageWidth, 40, 'F');
-    
-    doc.setTextColor(255, 255, 255);
+    let yPosition = 40;
+
+    // Header
     doc.setFontSize(24);
     doc.setFont('helvetica', 'bold');
-    doc.text(metadata.title, margin, 25);
-    
+    doc.setTextColor(30, 58, 138);
+    doc.text(metadata.title, margin, yPosition);
+    yPosition += 15;
+
     // Company info
-    doc.setFontSize(12);
+    doc.setFontSize(16);
     doc.setFont('helvetica', 'normal');
-    doc.text(`${metadata.companyName} | ${metadata.industry}`, margin, 35);
-    
-    // Reset color for content
-    doc.setTextColor(0, 0, 0);
-    let yPosition = 60;
-    
-    // Document metadata section
+    doc.setTextColor(75, 85, 99);
+    doc.text(metadata.companyName, margin, yPosition);
+    yPosition += 10;
+
+    // Metadata
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.text(`Generated: ${new Date().toLocaleDateString()}`, margin, yPosition);
@@ -154,99 +145,60 @@ function PolicyGenerator() {
         continue;
       }
       
-      // Handle bullet points
-      if (line.startsWith('- ') || line.startsWith('* ')) {
-        const bulletText = line.substring(2);
-        const wrappedBullet = doc.splitTextToSize(`• ${bulletText}`, contentWidth - 10);
-        
-        for (let bulletLine of wrappedBullet) {
-          if (yPosition > pageHeight - 30) {
-            doc.addPage();
-            yPosition = 40;
-          }
-          doc.text(bulletLine, margin + 10, yPosition);
-          yPosition += 6;
-        }
-        continue;
-      }
+      // Regular text
+      const textWidth = pageWidth - 2 * margin;
+      const splitText = doc.splitTextToSize(line, textWidth);
       
-      // Regular paragraph text
-      const wrappedText = doc.splitTextToSize(line, contentWidth);
-      for (let wrappedLine of wrappedText) {
+      for (let splitLine of splitText) {
         if (yPosition > pageHeight - 30) {
           doc.addPage();
           yPosition = 40;
         }
-        doc.text(wrappedLine, margin, yPosition);
+        doc.text(splitLine, margin, yPosition);
         yPosition += 6;
       }
-      yPosition += 3;
+      yPosition += 2;
     }
-    
-    // Footer on each page
-    const totalPages = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= totalPages; i++) {
-      doc.setPage(i);
-      doc.setFontSize(9);
-      doc.setTextColor(150, 150, 150);
-      doc.text(
-        `${metadata.companyName} - ${metadata.policyType} | Page ${i} of ${totalPages}`,
-        margin,
-        pageHeight - 10
-      );
-    }
-    
+
     return doc;
   };
 
-  const handleGenerate = async () => {
+  const handleGeneratePolicy = async () => {
     if (!companyName || !industry || !policyType) {
-      setError('Please fill in all fields');
+      setError('Please fill in all required fields');
       return;
     }
 
     setGenerating(true);
     setError('');
-    setProgress('Initializing AI policy generation...');
-
+    setProgress('');
+    
     try {
-      setProgress('Analyzing company requirements...');
+      setProgress('Analyzing requirements and preferences...');
       
-      // Build frameworks and compliances text
-      const selectedFrameworkNames = selectedFrameworks.map(id => 
-        frameworks.find(f => f.id === id)?.name
-      ).filter(Boolean);
-      
-      const selectedComplianceNames = selectedCompliances.map(id => 
-        compliances.find(c => c.id === id)?.name
-      ).filter(Boolean);
+      let prompt = `Generate a comprehensive ${policyType} for ${companyName}, a company in the ${industry} industry.
 
-      const frameworksText = selectedFrameworkNames.length > 0 
-        ? `\n\nPlease ensure the policy aligns with these frameworks: ${selectedFrameworkNames.join(', ')}`
-        : '';
-        
-      const compliancesText = selectedComplianceNames.length > 0 
-        ? `\n\nPlease ensure the policy complies with these regulations: ${selectedComplianceNames.join(', ')}`
-        : '';
-      
-      const prompt = `Create a comprehensive ${policyType} for ${companyName}, a company in the ${industry} industry. 
+The policy should be professional, legally sound, and include:
+1. Clear objectives and scope
+2. Detailed procedures and guidelines
+3. Roles and responsibilities
+4. Compliance requirements
+5. Implementation guidelines
+6. Review and update procedures
 
-Please structure the policy with:
-1. Clear headings using # for main sections and ## for subsections
-2. Professional, legally sound language
-3. Industry-specific considerations for ${industry}
-4. Practical implementation guidelines
-5. Compliance requirements where applicable${frameworksText}${compliancesText}
+`;
 
-The policy should be thorough, professional, and ready for corporate use. Include sections like:
-- Purpose and Scope
-- Definitions
-- Policy Statement
-- Procedures
-- Responsibilities
-- Compliance and Enforcement
-- Review and Updates
+      if (selectedFrameworks.length > 0) {
+        const frameworkNames = selectedFrameworks.map(id => frameworks.find(f => f.id === id)?.name).join(', ');
+        prompt += `Please ensure the policy aligns with these frameworks: ${frameworkNames}.\n`;
+      }
 
+      if (selectedCompliances.length > 0) {
+        const complianceNames = selectedCompliances.map(id => compliances.find(c => c.id === id)?.name).join(', ');
+        prompt += `The policy must comply with these standards: ${complianceNames}.\n`;
+      }
+
+      prompt += `
 Make it specific to ${companyName} and relevant to the ${industry} industry.`;
 
       setProgress('Generating comprehensive policy content...');
@@ -300,191 +252,234 @@ Make it specific to ${companyName} and relevant to the ${industry} industry.`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 shadow-2xl">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-3">🏢 AI Policy Generator</h1>
-            <p className="text-white/80 text-lg">Generate professional policies with AI-powered precision</p>
+    <div className="min-h-screen bg-white">
+      {/* Header with Back Button */}
+      <div className="bg-white border-b border-gray-200 p-6 shadow-osmo">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <button
+            onClick={() => onNavigate('home')}
+            className="bg-osmo-dark text-white px-6 py-3 rounded-osmo font-bold hover:bg-gray-700 transition-all shadow-osmo"
+          >
+            ← Back to home
+          </button>
+          <div className="text-center">
+            <h1 className="text-4xl font-black text-osmo-dark">AI Policy Generator</h1>
+            <p className="text-gray-600">Generate professional policies instantly</p>
+          </div>
+          <div></div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-6 py-12">
+        <div className="max-w-4xl mx-auto">
+          
+          {/* Instructions */}
+          <div className="bg-white rounded-osmo-lg p-8 shadow-osmo-lg border border-gray-100 mb-8">
+            <h2 className="text-2xl font-black text-osmo-dark mb-6 text-center">How it works</h2>
+            <div className="grid md:grid-cols-3 gap-6 text-center">
+              <div className="bg-gradient-to-b from-osmo-purple/5 to-osmo-purple/10 p-6 rounded-osmo">
+                <div className="w-16 h-16 bg-osmo-purple rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl text-white">📝</span>
+                </div>
+                <p className="font-bold text-osmo-dark mb-2">Fill Details</p>
+                <p className="text-sm text-gray-600">Enter company info and select policy type</p>
+              </div>
+              <div className="bg-gradient-to-b from-osmo-blue/5 to-osmo-blue/10 p-6 rounded-osmo">
+                <div className="w-16 h-16 bg-osmo-blue rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl text-white">🤖</span>
+                </div>
+                <p className="font-bold text-osmo-dark mb-2">AI Generation</p>
+                <p className="text-sm text-gray-600">AI creates customized policy</p>
+              </div>
+              <div className="bg-gradient-to-b from-osmo-green/5 to-osmo-green/10 p-6 rounded-osmo">
+                <div className="w-16 h-16 bg-osmo-green rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl text-white">📄</span>
+                </div>
+                <p className="font-bold text-osmo-dark mb-2">Download PDF</p>
+                <p className="text-sm text-gray-600">Get professional formatted document</p>
+              </div>
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div>
-              <label className="block text-white/90 font-semibold mb-2">Company Name</label>
-              <input
-                type="text"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Enter your company name"
-              />
+          {/* Form */}
+          <div className="bg-white rounded-osmo-lg p-8 shadow-osmo-lg border border-gray-100 mb-8">
+            <h2 className="text-2xl font-black text-osmo-dark mb-6">Policy Details</h2>
+            
+            <div className="grid md:grid-cols-3 gap-6 mb-6">
+              <div>
+                <label className="block text-osmo-dark font-semibold mb-2">Company Name</label>
+                <input
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-osmo text-osmo-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-osmo-purple"
+                  placeholder="Enter your company name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-osmo-dark font-semibold mb-2">Industry</label>
+                <select
+                  value={industry}
+                  onChange={(e) => setIndustry(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-osmo text-osmo-dark focus:outline-none focus:ring-2 focus:ring-osmo-purple"
+                >
+                  <option value="">Select Industry</option>
+                  {industries.map(ind => (
+                    <option key={ind} value={ind}>{ind}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-osmo-dark font-semibold mb-2">Policy Type</label>
+                <select
+                  value={policyType}
+                  onChange={(e) => setPolicyType(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-osmo text-osmo-dark focus:outline-none focus:ring-2 focus:ring-osmo-purple"
+                >
+                  <option value="">Select Policy Type</option>
+                  {policyTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-white/90 font-semibold mb-2">Industry</label>
-              <select
-                value={industry}
-                onChange={(e) => setIndustry(e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="" className="bg-gray-800">Select Industry</option>
-                {industries.map(ind => (
-                  <option key={ind} value={ind} className="bg-gray-800">{ind}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-white/90 font-semibold mb-2">Policy Type</label>
-              <select
-                value={policyType}
-                onChange={(e) => setPolicyType(e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="" className="bg-gray-800">Select Policy Type</option>
-                {policyTypes.map(type => (
-                  <option key={type} value={type} className="bg-gray-800">{type}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Frameworks and Compliances Selection */}
-          <div className="grid md:grid-cols-2 gap-8 mb-8">
-            {/* Frameworks Section */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-white flex items-center">
-                  🏗️ Frameworks
-                  <span className="text-sm font-normal text-white/70 ml-2">(Optional)</span>
-                </h3>
+            {/* Frameworks and Compliances Selection */}
+            <div className="grid md:grid-cols-2 gap-8 mb-6">
+              {/* Frameworks Section */}
+              <div className="bg-osmo-gray/50 rounded-osmo p-6 border border-gray-200">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-osmo-dark flex items-center">
+                    🏗️ Frameworks
+                    <span className="text-sm font-normal text-gray-500 ml-2">(Optional)</span>
+                  </h3>
+                  {selectedFrameworks.length > 0 && (
+                    <button
+                      onClick={clearAllFrameworks}
+                      className="text-xs text-red-500 hover:text-red-700 underline"
+                    >
+                      Clear All
+                    </button>
+                  )}
+                </div>
+                <p className="text-gray-600 text-sm mb-4">Select frameworks to align your policy with:</p>
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                  {frameworks.map(framework => (
+                    <div key={framework.id} className="flex items-start space-x-3">
+                      <input
+                        type="checkbox"
+                        id={framework.id}
+                        checked={selectedFrameworks.includes(framework.id)}
+                        onChange={() => handleFrameworkChange(framework.id)}
+                        className="mt-1 w-4 h-4 text-osmo-purple bg-white border-gray-300 rounded focus:ring-osmo-purple focus:ring-2"
+                      />
+                      <label htmlFor={framework.id} className="flex-1 cursor-pointer">
+                        <div className="text-osmo-dark font-medium">{framework.name}</div>
+                        <div className="text-gray-600 text-xs">{framework.description}</div>
+                      </label>
+                    </div>
+                  ))}
+                </div>
                 {selectedFrameworks.length > 0 && (
-                  <button
-                    onClick={clearAllFrameworks}
-                    className="text-xs text-red-400 hover:text-red-300 underline"
-                  >
-                    Clear All
-                  </button>
+                  <div className="mt-4 p-3 bg-osmo-blue/10 border border-osmo-blue/20 rounded-osmo">
+                    <div className="text-osmo-blue text-sm font-medium">
+                      Selected: {selectedFrameworks.map(id => frameworks.find(f => f.id === id)?.name).join(', ')}
+                    </div>
+                  </div>
                 )}
               </div>
-              <p className="text-white/60 text-sm mb-4">Select frameworks to align your policy with:</p>
-              <div className="space-y-3 max-h-64 overflow-y-auto">
-                {frameworks.map(framework => (
-                  <div key={framework.id} className="flex items-start space-x-3">
-                    <input
-                      type="checkbox"
-                      id={framework.id}
-                      checked={selectedFrameworks.includes(framework.id)}
-                      onChange={() => handleFrameworkChange(framework.id)}
-                      className="mt-1 w-4 h-4 text-blue-600 bg-white/10 border-white/20 rounded focus:ring-blue-500 focus:ring-2"
-                    />
-                    <label htmlFor={framework.id} className="flex-1 cursor-pointer">
-                      <div className="text-white font-medium">{framework.name}</div>
-                      <div className="text-white/60 text-xs">{framework.description}</div>
-                    </label>
-                  </div>
-                ))}
-              </div>
-              {selectedFrameworks.length > 0 && (
-                <div className="mt-4 p-3 bg-blue-500/20 border border-blue-400/30 rounded-lg">
-                  <div className="text-blue-200 text-sm font-medium">
-                    Selected: {selectedFrameworks.map(id => frameworks.find(f => f.id === id)?.name).join(', ')}
-                  </div>
-                </div>
-              )}
-            </div>
 
-            {/* Compliances Section */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-white flex items-center">
-                  ⚖️ Compliance Requirements
-                  <span className="text-sm font-normal text-white/70 ml-2">(Optional)</span>
-                </h3>
+              {/* Compliances Section */}
+              <div className="bg-osmo-gray/50 rounded-osmo p-6 border border-gray-200">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-osmo-dark flex items-center">
+                    📋 Compliance Standards
+                    <span className="text-sm font-normal text-gray-500 ml-2">(Optional)</span>
+                  </h3>
+                  {selectedCompliances.length > 0 && (
+                    <button
+                      onClick={clearAllCompliances}
+                      className="text-xs text-red-500 hover:text-red-700 underline"
+                    >
+                      Clear All
+                    </button>
+                  )}
+                </div>
+                <p className="text-gray-600 text-sm mb-4">Select compliance standards to include:</p>
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                  {compliances.map(compliance => (
+                    <div key={compliance.id} className="flex items-start space-x-3">
+                      <input
+                        type="checkbox"
+                        id={compliance.id}
+                        checked={selectedCompliances.includes(compliance.id)}
+                        onChange={() => handleComplianceChange(compliance.id)}
+                        className="mt-1 w-4 h-4 text-osmo-purple bg-white border-gray-300 rounded focus:ring-osmo-purple focus:ring-2"
+                      />
+                      <label htmlFor={compliance.id} className="flex-1 cursor-pointer">
+                        <div className="text-osmo-dark font-medium">{compliance.name}</div>
+                        <div className="text-gray-600 text-xs">{compliance.description}</div>
+                      </label>
+                    </div>
+                  ))}
+                </div>
                 {selectedCompliances.length > 0 && (
-                  <button
-                    onClick={clearAllCompliances}
-                    className="text-xs text-red-400 hover:text-red-300 underline"
-                  >
-                    Clear All
-                  </button>
+                  <div className="mt-4 p-3 bg-osmo-green/10 border border-osmo-green/20 rounded-osmo">
+                    <div className="text-osmo-green text-sm font-medium">
+                      Selected: {selectedCompliances.map(id => compliances.find(c => c.id === id)?.name).join(', ')}
+                    </div>
+                  </div>
                 )}
               </div>
-              <p className="text-white/60 text-sm mb-4">Select regulations to ensure compliance:</p>
-              <div className="space-y-3 max-h-64 overflow-y-auto">
-                {compliances.map(compliance => (
-                  <div key={compliance.id} className="flex items-start space-x-3">
-                    <input
-                      type="checkbox"
-                      id={compliance.id}
-                      checked={selectedCompliances.includes(compliance.id)}
-                      onChange={() => handleComplianceChange(compliance.id)}
-                      className="mt-1 w-4 h-4 text-green-600 bg-white/10 border-white/20 rounded focus:ring-green-500 focus:ring-2"
-                    />
-                    <label htmlFor={compliance.id} className="flex-1 cursor-pointer">
-                      <div className="text-white font-medium">{compliance.name}</div>
-                      <div className="text-white/60 text-xs">{compliance.description}</div>
-                    </label>
-                  </div>
-                ))}
-              </div>
-              {selectedCompliances.length > 0 && (
-                <div className="mt-4 p-3 bg-green-500/20 border border-green-400/30 rounded-lg">
-                  <div className="text-green-200 text-sm font-medium">
-                    Selected: {selectedCompliances.map(id => compliances.find(c => c.id === id)?.name).join(', ')}
-                  </div>
-                </div>
-              )}
             </div>
-          </div>
 
-          <div className="text-center mb-8">
-            <button
-              onClick={handleGenerate}
-              disabled={generating}
-              className={`px-8 py-4 rounded-xl font-bold text-lg transition-all ${
-                generating
-                  ? 'bg-gray-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:scale-105'
-              } text-white shadow-lg`}
-            >
-              {generating ? '🔄 Generating...' : '🚀 Generate Policy'}
-            </button>
+            <div className="text-center">
+              <button
+                onClick={handleGeneratePolicy}
+                disabled={generating || !companyName || !industry || !policyType}
+                className="bg-osmo-dark text-white px-8 py-4 rounded-osmo-lg font-bold text-lg shadow-osmo-lg hover:shadow-osmo hover:transform hover:translate-y-[-2px] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {generating ? '🔄 Generating...' : '🚀 Generate Policy'}
+              </button>
+            </div>
           </div>
 
           {progress && (
-            <div className="mb-6 p-4 bg-blue-500/20 border border-blue-400/30 rounded-xl">
-              <p className="text-blue-200 text-center font-medium">{progress}</p>
+            <div className="mb-6 p-4 bg-osmo-blue/10 border border-osmo-blue/20 rounded-osmo">
+              <p className="text-osmo-blue text-center font-medium">{progress}</p>
             </div>
           )}
 
           {error && (
-            <div className="mb-6 p-4 bg-red-500/20 border border-red-400/30 rounded-xl">
-              <p className="text-red-200 text-center font-medium">{error}</p>
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-osmo">
+              <p className="text-red-600 text-center font-medium">{error}</p>
             </div>
           )}
 
           {generatedPolicy && (
-            <div className="mt-8 bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-              <div className="flex items-center justify-between mb-4">
+            <div className="bg-white rounded-osmo-lg p-8 shadow-osmo-lg border border-gray-100">
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-2xl font-black text-white">GENERATED POLICY PREVIEW</h3>
+                  <h3 className="text-2xl font-black text-osmo-dark">Generated Policy Preview</h3>
+                  <p className="text-gray-600">Professional policy ready for download</p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="bg-green-200 text-green-800 px-3 py-1 rounded-full text-sm font-bold border-2 border-green-600">
-                    📄 Professional PDF Ready
+                  <div className="bg-osmo-green/10 text-osmo-green px-4 py-2 rounded-osmo text-sm font-bold border border-osmo-green/20">
+                    📄 PDF Ready
                   </div>
                   <button
                     onClick={handleDownloadPDF}
-                    className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg"
+                    className="bg-osmo-green text-white px-6 py-3 rounded-osmo font-bold hover:bg-green-600 transition-all shadow-osmo"
                   >
-                    📄 DOWNLOAD PDF
+                    📄 Download PDF
                   </button>
                 </div>
               </div>
               
-              <div className="bg-white/10 rounded-lg p-6 max-h-96 overflow-y-auto border border-white/20">
-                <pre className="text-white/90 whitespace-pre-wrap font-mono text-sm leading-relaxed">
+              <div className="bg-osmo-gray/30 rounded-osmo p-6 max-h-96 overflow-y-auto border border-gray-200">
+                <pre className="text-osmo-dark whitespace-pre-wrap font-mono text-sm leading-relaxed">
                   {generatedPolicy}
                 </pre>
               </div>

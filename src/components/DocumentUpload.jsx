@@ -117,34 +117,34 @@ function DocumentUpload({ onUpload, uploading, progress, error }) {
   };
 
   return (
-    <div className="w-full bg-gradient-to-br from-purple-800 to-pink-900 p-8 rounded-3xl border-4 border-pink-400 shadow-[8px_8px_0px_0px_#ec4899] hover:shadow-[12px_12px_0px_0px_#ec4899] transition-all">
+    <div className="w-full bg-white p-8 rounded-osmo-lg shadow-osmo-lg border border-gray-100">
       <div className="flex items-center mb-6">
-        <div className="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center border-4 border-black mr-4">
-          <span className="text-2xl">📁</span>
+        <div className="w-12 h-12 bg-osmo-purple rounded-osmo flex items-center justify-center mr-4">
+          <span className="text-2xl text-white">📁</span>
         </div>
-        <h2 className="text-3xl font-black text-white">UPLOAD DOCUMENT</h2>
+        <h2 className="text-3xl font-black text-osmo-dark">Upload Document</h2>
       </div>
       
       {/* Regulatory Framework Selection */}
       <div className="mb-6">
-        <label className="block text-sm font-bold mb-3 text-white">
+        <label className="block text-sm font-bold mb-3 text-osmo-dark">
           Select Regulatory Frameworks to Benchmark Against:
         </label>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {availableFrameworks.map((framework) => (
             <label 
               key={framework.id} 
-              className="flex items-center p-3 bg-purple-100 border-2 border-purple-800 rounded-lg hover:bg-purple-200 cursor-pointer shadow-md transition-all duration-200"
+              className="flex items-center p-3 bg-gray-50 border border-gray-200 rounded-osmo hover:bg-gray-100 cursor-pointer shadow-osmo transition-all duration-200"
             >
               <input
                 type="checkbox"
                 checked={selectedFrameworks.includes(framework.id)}
                 onChange={() => handleFrameworkChange(framework.id)}
-                className="mr-3 scale-125"
+                className="mr-3 scale-125 accent-osmo-purple"
               />
               <div>
-                <span className="font-bold text-purple-800">{framework.name}</span>
-                <p className="text-xs text-purple-600 mt-1">Region: {framework.region}</p>
+                <span className="font-bold text-osmo-dark">{framework.name}</span>
+                <p className="text-xs text-gray-600 mt-1">Region: {framework.region}</p>
               </div>
             </label>
           ))}
@@ -153,13 +153,13 @@ function DocumentUpload({ onUpload, uploading, progress, error }) {
 
       {/* Industry Selection */}
       <div className="mb-6">
-        <label className="block text-sm font-bold mb-3 text-white">
+        <label className="block text-sm font-bold mb-3 text-osmo-dark">
           Select Your Industry Sector:
         </label>
         <select
           value={selectedIndustry}
           onChange={(e) => setSelectedIndustry(e.target.value)}
-          className="w-full p-3 border-4 border-purple-800 rounded-lg bg-yellow-300 text-purple-800 font-bold shadow-[4px_4px_0px_0px_rgba(79,70,229,1)] focus:shadow-[6px_6px_0px_0px_rgba(79,70,229,1)] transition-all duration-200"
+          className="w-full p-3 border border-gray-200 rounded-osmo bg-white text-osmo-dark font-bold shadow-osmo focus:shadow-osmo-lg focus:border-osmo-purple transition-all duration-200"
         >
           <option value="">Choose your industry...</option>
           {industries.map((industry) => (
@@ -169,16 +169,16 @@ function DocumentUpload({ onUpload, uploading, progress, error }) {
       </div>
       
       <div className="mb-6">
-        <div className="bg-gray-800 p-4 rounded-2xl border-4 border-gray-600 mb-4">
+        <div className="bg-gray-50 p-4 rounded-osmo border border-gray-200 mb-4">
           <input
             type="file"
             accept="application/pdf"
             onChange={handleFileChange}
-            className="w-full text-gray-300 bg-gray-700 border-2 border-pink-400 p-3 rounded-xl file:mr-4 file:py-2 file:px-4 file:bg-pink-500 file:text-white file:font-bold file:border-0 file:rounded-lg file:shadow-[4px_4px_0px_0px_#000] hover:file:bg-pink-400 transition-all"
+            className="w-full text-gray-700 bg-white border border-gray-200 p-3 rounded-osmo file:mr-4 file:py-2 file:px-4 file:bg-osmo-purple file:text-white file:font-bold file:border-0 file:rounded-osmo file:shadow-osmo hover:file:bg-osmo-purple/90 transition-all"
           />
           {file && (
-            <div className="mt-3 p-3 bg-pink-700 rounded-xl border-2 border-pink-300">
-              <p className="text-pink-100 font-bold">
+            <div className="mt-3 p-3 bg-osmo-green/10 rounded-osmo border border-osmo-green/20">
+              <p className="text-osmo-green font-bold">
                 ✅ {file.name} ({Math.round(file.size / 1024)} KB)
               </p>
             </div>
@@ -189,28 +189,28 @@ function DocumentUpload({ onUpload, uploading, progress, error }) {
       <button
         onClick={handleUpload}
         disabled={uploading || !file}
-        className="w-full bg-gradient-to-r from-green-400 to-cyan-400 text-black text-xl font-black px-8 py-4 rounded-2xl border-4 border-green-300 shadow-[6px_6px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] disabled:bg-gray-600 disabled:text-gray-400 disabled:border-gray-500 disabled:shadow-none transition-all transform"
+        className="w-full bg-osmo-dark text-white text-xl font-bold px-8 py-4 rounded-osmo-lg shadow-osmo-lg hover:shadow-osmo hover:transform hover:translate-y-[-2px] disabled:bg-gray-400 disabled:text-gray-200 disabled:shadow-none disabled:transform-none transition-all"
       >
-        {uploading ? '🤖 PROCESSING...' : '⚡ ANALYZE POLICY'}
+        {uploading ? '🤖 Processing...' : '⚡ Analyze Policy'}
       </button>
 
       {progress && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-blue-800 to-cyan-800 border-4 border-cyan-400 rounded-2xl shadow-[4px_4px_0px_0px_#06b6d4]">
+        <div className="mt-6 p-4 bg-osmo-blue/10 border border-osmo-blue/20 rounded-osmo shadow-osmo">
           <div className="flex items-center">
             <div className="animate-spin text-2xl mr-3">⚙️</div>
-            <p className="text-cyan-100 font-bold text-lg">{progress}</p>
+            <p className="text-osmo-blue font-bold text-lg">{progress}</p>
           </div>
         </div>
       )}
 
       {error && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-red-800 to-pink-800 border-4 border-red-400 rounded-2xl shadow-[4px_4px_0px_0px_#ef4444]">
+        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-osmo shadow-osmo">
           <div className="flex items-center mb-2">
             <span className="text-2xl mr-3">⚠️</span>
-            <p className="text-red-100 font-bold text-lg">ERROR DETECTED</p>
+            <p className="text-red-700 font-bold text-lg">Error Detected</p>
           </div>
-          <p className="text-red-200 mb-2">{error}</p>
-          <p className="text-red-300 text-sm">
+          <p className="text-red-600 mb-2">{error}</p>
+          <p className="text-red-500 text-sm">
             💡 Check the browser console (F12) for detailed error information.
           </p>
         </div>

@@ -15,219 +15,202 @@ function AnalysisResults({ analysis }) {
   };
 
   return (
-    <div className="w-full bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-3xl border-4 border-gray-600 shadow-[8px_8px_0px_0px_#6b7280] space-y-6">
+    <div className="w-full bg-white rounded-osmo shadow-osmo p-8 space-y-6">
       
       {/* Header */}
-      <div className="w-full bg-gradient-to-r from-purple-600 to-pink-600 p-6 rounded-2xl border-4 border-purple-300 shadow-[4px_4px_0px_0px_#000]">
+      <div className="w-full bg-gradient-to-r from-osmo-blue to-osmo-purple rounded-osmo p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <div className="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center border-4 border-black mr-4">
+            <div className="w-12 h-12 bg-osmo-green rounded-lg flex items-center justify-center mr-4">
               <span className="text-2xl">📊</span>
             </div>
             <div>
-              <h1 className="text-3xl font-black text-white">ANALYSIS RESULTS</h1>
-              <p className="text-purple-100">Comprehensive compliance gap assessment</p>
+              <h1 className="text-3xl font-bold text-white">Analysis Results</h1>
+              <p className="text-white opacity-90">Comprehensive compliance gap assessment</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-center">
-              <div className="text-4xl font-black text-white">
-                {analysis.totalGaps || analysis.gaps.length} 
+              <div className="text-4xl font-bold text-white">
+                {analysis.totalGaps || analysis.gaps?.length || 0} 
               </div>
-              <div className="text-purple-200 text-sm font-bold">GAPS IDENTIFIED</div>
+              <div className="text-white opacity-80 text-sm">Gaps Identified</div>
             </div>
             {analysis.overallScore && (
-              <div className="bg-purple-600 text-white px-4 py-2 rounded-xl font-bold border-2 border-purple-300">
-                OVERALL SCORE: {analysis.overallScore}%
+              <div className="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg font-semibold">
+                Overall Score: {analysis.overallScore}%
               </div>
             )}
             {analysis.industryBenchmark && (
-              <div className="bg-cyan-600 text-white px-4 py-2 rounded-xl font-bold border-2 border-cyan-300">
-                {analysis.industryBenchmark.comparison.toUpperCase()}
+              <div className="bg-osmo-green text-white px-4 py-2 rounded-lg font-semibold">
+                {analysis.industryBenchmark.comparison}
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Summary Section */}
-      <div className="w-full bg-gradient-to-r from-blue-700 to-indigo-800 p-6 rounded-2xl border-4 border-blue-400 shadow-[4px_4px_0px_0px_#1d4ed8]">
-        <h2 className="text-xl font-black text-white mb-3 flex items-center">
-          <span className="text-2xl mr-2">📋</span>
-          EXECUTIVE SUMMARY
-        </h2>
-        <p className="text-blue-100 text-lg leading-relaxed">
-          {analysis.summary}
-        </p>
-      </div>
-
-      {/* Gaps Section - 2x2 Grid Layout */}
-      <h3 className="text-2xl font-black text-yellow-400 mb-6 flex items-center">
-        <span className="text-2xl mr-2">🚨</span>
-        IDENTIFIED COMPLIANCE GAPS
-      </h3>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {(analysis.gaps && Array.isArray(analysis.gaps) ? analysis.gaps : []).map((gap, index) => {
-          const getSeverityStyle = (severity) => {
-            const s = severity.toLowerCase();
-            if (s === 'critical') return 'from-red-600 to-red-700 border-red-400';
-            if (s === 'high') return 'from-orange-600 to-red-600 border-orange-400';
-            if (s === 'medium') return 'from-yellow-600 to-orange-600 border-yellow-400';
-            return 'from-green-600 to-green-700 border-green-400';
-          };
-
-          const getSeverityEmoji = (severity) => {
-            const s = severity.toLowerCase();
-            if (s === 'critical') return '🚨';
-            if (s === 'high') return '⚠️';
-            if (s === 'medium') return '📋';
-            return '✅';
-          };
-
-          return (
-            <div key={index} className={`bg-gradient-to-r ${getSeverityStyle(gap.severity)} p-6 rounded-2xl border-4 shadow-[4px_4px_0px_0px_#000] h-full`}>
-              <div className="flex items-start justify-between mb-4">
-                <h4 className="text-white font-black text-lg flex items-center">
-                  <span className="text-2xl mr-2">{getSeverityEmoji(gap.severity)}</span>
-                  GAP #{index + 1}
-                </h4>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="bg-black text-white px-3 py-1 rounded-lg font-bold text-sm">
-                    {gap.severity.toUpperCase()}
-                  </div>
-                  {gap.framework && (
-                    <div className="bg-white text-black px-3 py-1 rounded-lg font-bold text-xs">
-                      {gap.framework}
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="bg-black bg-opacity-40 p-4 rounded-xl border-2 border-white border-opacity-30">
-                  <p className="text-white font-bold mb-2 flex items-center">
-                    <span className="text-lg mr-2">🎯</span>
-                    ACTION REQUIRED:
-                  </p>
-                  <p className="text-white text-sm">{gap.remediation}</p>
-                </div>
-                
-                <div className="bg-black bg-opacity-40 p-4 rounded-xl border-2 border-white border-opacity-30">
-                  <p className="text-white font-bold mb-2 flex items-center">
-                    <span className="text-lg mr-2">⚠️</span>
-                    ROOT ISSUE:
-                  </p>
-                  <p className="text-white text-sm">{gap.issue}</p>
-                </div>
-              </div>
+      {/* High Priority Items */}
+      {analysis.gaps && analysis.gaps.some(gap => gap.severity === 'high') && (
+        <div className="bg-red-50 border border-red-200 rounded-osmo p-6">
+          <div className="flex items-center mb-4">
+            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center mr-3">
+              <span className="text-white font-bold text-sm">!</span>
             </div>
-          );
-        })}
-      </div>
+            <h2 className="text-xl font-semibold text-red-800">High Priority Items</h2>
+          </div>
+          <div className="space-y-3">
+            {analysis.gaps.filter(gap => gap.severity === 'high').map((gap, index) => (
+              <div key={index} className="bg-white rounded-lg p-4 border border-red-200">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-semibold text-gray-900">{gap.title || gap.issue}</h3>
+                  <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-semibold">
+                    High Risk
+                  </span>
+                </div>
+                <p className="text-gray-600 mb-3">{gap.description || gap.issue}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="text-sm text-gray-500">
+                      Impact: <span className="font-semibold text-red-600">{gap.impact || gap.businessImpact}</span>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Timeline: <span className="font-semibold">{gap.timeline || gap.timeframe}</span>
+                    </div>
+                  </div>
+                  <button className="text-osmo-blue hover:text-osmo-purple text-sm font-semibold">
+                    View Details →
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      {/* Generate Plan Button */}
-      <div className="w-full text-center">
-        <div className="w-full bg-gradient-to-r from-green-700 to-emerald-800 p-6 rounded-2xl border-4 border-green-400 shadow-[4px_4px_0px_0px_#16a34a]">
-          <h3 className="text-xl font-black text-white mb-4 flex items-center justify-center">
-            <span className="text-2xl mr-2">📋</span>
-            DETAILED REMEDIATION PLANNING
-          </h3>
-          <button
-            onClick={handleGeneratePlan}
-            disabled={isGeneratingPlan}
-            className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xl font-black px-8 py-4 rounded-2xl border-4 border-blue-300 shadow-[6px_6px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] disabled:opacity-50 disabled:cursor-not-allowed transition-all transform"
-          >
-            {isGeneratingPlan ? (
-              <>
-                <span className="animate-spin mr-2">⚙️</span>
-                GENERATING PLAN...
-              </>
-            ) : (
-              <>🚀 GENERATE PLAN</>
-            )}
-          </button>
-          <p className="text-green-100 text-sm mt-3">
-            Get a detailed, prioritized action plan with timelines and business impact analysis
-          </p>
+      {/* All Gaps Grid */}
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold text-gray-900">All Identified Gaps</h2>
+        <div className="grid gap-4">
+          {analysis.gaps && analysis.gaps.map((gap, index) => {
+            const severityColors = {
+              high: 'border-red-200 bg-red-50',
+              medium: 'border-yellow-200 bg-yellow-50', 
+              low: 'border-blue-200 bg-blue-50'
+            };
+            
+            const severityBadges = {
+              high: 'bg-red-100 text-red-800',
+              medium: 'bg-yellow-100 text-yellow-800',
+              low: 'bg-blue-100 text-blue-800'
+            };
+
+            return (
+              <div key={index} className={`bg-white rounded-osmo border p-6 ${severityColors[gap.severity] || 'border-gray-200'}`}>
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">{gap.title || gap.issue}</h3>
+                    <p className="text-gray-600">{gap.description || gap.issue}</p>
+                  </div>
+                  <div className="ml-4 flex flex-col items-end space-y-2">
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${severityBadges[gap.severity] || 'bg-gray-100 text-gray-800'}`}>
+                      {gap.severity ? gap.severity.charAt(0).toUpperCase() + gap.severity.slice(1) : 'Medium'} Priority
+                    </span>
+                    {gap.score && (
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-gray-900">{gap.score}%</div>
+                        <div className="text-xs text-gray-500">Compliance Score</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4 mt-4">
+                  <div className="space-y-2">
+                    <div className="text-sm font-semibold text-gray-700">Impact</div>
+                    <div className="text-sm text-gray-600">{gap.impact || gap.businessImpact || 'Not specified'}</div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-sm font-semibold text-gray-700">Timeline</div>
+                    <div className="text-sm text-gray-600">{gap.timeline || gap.timeframe || 'Not specified'}</div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-sm font-semibold text-gray-700">Framework</div>
+                    <div className="text-sm text-gray-600">{gap.framework || gap.category || 'General'}</div>
+                  </div>
+                </div>
+
+                {(gap.recommendation || gap.remediation) && (
+                  <div className="mt-4 p-4 bg-osmo-blue bg-opacity-10 rounded-lg">
+                    <div className="text-sm font-semibold text-osmo-blue mb-1">Recommendation</div>
+                    <div className="text-sm text-gray-700">{gap.recommendation || gap.remediation}</div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Skeleton Loading Animation */}
-      {isGeneratingPlan && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-gradient-to-br from-purple-400 to-pink-500 p-1 rounded-3xl border-4 border-black shadow-[12px_12px_0px_0px_#000] max-w-4xl w-[90%] max-h-[90%]">
-            <div className="bg-white p-8 rounded-2xl h-full overflow-hidden">
-              <div className="animate-pulse">
-                {/* Header skeleton */}
-                <div className="flex justify-between items-center mb-8">
-                  <div className="h-8 bg-gray-300 rounded-xl w-80"></div>
-                  <div className="h-8 bg-gray-300 rounded-xl w-32"></div>
-                </div>
-                
-                {/* Executive summary skeleton */}
-                <div className="mb-8">
-                  <div className="h-6 bg-gray-300 rounded-lg w-48 mb-4"></div>
-                  <div className="space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-full"></div>
-                    <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-                    <div className="h-4 bg-gray-200 rounded w-4/6"></div>
-                  </div>
-                </div>
-
-                {/* Priority tasks skeleton */}
-                <div className="mb-8">
-                  <div className="h-6 bg-gray-300 rounded-lg w-56 mb-4"></div>
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="mb-4 p-4 bg-gray-100 rounded-xl">
-                      <div className="flex items-center mb-2">
-                        <div className="h-4 bg-gray-300 rounded w-8 mr-4"></div>
-                        <div className="h-5 bg-gray-300 rounded w-64"></div>
-                      </div>
-                      <div className="space-y-2 ml-12">
-                        <div className="h-3 bg-gray-200 rounded w-full"></div>
-                        <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Timeline skeleton */}
-                <div className="mb-8">
-                  <div className="h-6 bg-gray-300 rounded-lg w-40 mb-4"></div>
-                  <div className="grid grid-cols-3 gap-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="p-4 bg-gray-100 rounded-xl">
-                        <div className="h-5 bg-gray-300 rounded w-24 mb-3"></div>
-                        <div className="space-y-2">
-                          <div className="h-3 bg-gray-200 rounded w-full"></div>
-                          <div className="h-3 bg-gray-200 rounded w-4/5"></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Loading message */}
-                <div className="text-center py-8">
-                  <div className="text-2xl font-black text-gray-600 mb-2">
-                    🤖 AI CRAFTING YOUR REMEDIATION PLAN
-                  </div>
-                  <div className="text-gray-500">
-                    Analyzing compliance gaps and generating actionable solutions...
-                  </div>
-                </div>
+      {/* Industry Benchmark */}
+      {analysis.industryBenchmark && (
+        <div className="bg-white rounded-osmo shadow-osmo border p-6">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Industry Benchmark</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <span className="font-semibold text-gray-700">Your Score</span>
+                <span className="text-2xl font-bold text-osmo-blue">{analysis.industryBenchmark.yourScore}%</span>
+              </div>
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <span className="font-semibold text-gray-700">Industry Average</span>
+                <span className="text-2xl font-bold text-gray-600">{analysis.industryBenchmark.industryAverage}%</span>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="p-4 bg-osmo-green bg-opacity-10 rounded-lg">
+                <div className="font-semibold text-osmo-green mb-2">Performance Status</div>
+                <div className="text-gray-700">{analysis.industryBenchmark.comparison}</div>
+              </div>
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <div className="font-semibold text-blue-700 mb-2">Key Insights</div>
+                <div className="text-gray-700 text-sm">{analysis.industryBenchmark.insights || 'Your organization shows strong compliance practices compared to industry standards.'}</div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Detailed Plan Modal */}
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-4 pt-6">
+        <button
+          onClick={handleGeneratePlan}
+          disabled={isGeneratingPlan}
+          className="flex-1 bg-osmo-purple hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold py-4 px-8 rounded-osmo transition-colors duration-200 flex items-center justify-center"
+        >
+          {isGeneratingPlan ? (
+            <>
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
+              Generating Detailed Plan...
+            </>
+          ) : (
+            <>
+              <span className="mr-2">📋</span>
+              Generate Detailed Implementation Plan
+            </>
+          )}
+        </button>
+        <button className="flex-1 bg-white border-2 border-osmo-blue text-osmo-blue hover:bg-osmo-blue hover:text-white font-semibold py-4 px-8 rounded-osmo transition-colors duration-200">
+          <span className="mr-2">💾</span>
+          Export Report
+        </button>
+      </div>
+
+      {/* Detailed Plan Modal/Section */}
       {showDetailedPlan && (
         <DetailedPlan 
           analysis={analysis} 
-          onClose={() => setShowDetailedPlan(false)} 
+          onClose={() => setShowDetailedPlan(false)}
         />
       )}
     </div>

@@ -104,19 +104,19 @@ function PolicyAnalyzer({ onNavigate, onDocumentUpload }) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-white">
       {/* Header with Back Button */}
-      <div className="bg-gradient-to-r from-pink-600 to-purple-700 p-6 border-b-4 border-pink-400">
+      <div className="bg-white border-b border-gray-200 p-6 shadow-osmo">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <button
             onClick={() => onNavigate('home')}
-            className="bg-yellow-400 text-black px-6 py-3 rounded-2xl font-black border-4 border-yellow-300 hover:bg-yellow-300 transition-all shadow-[4px_4px_0px_0px_#000]"
+            className="bg-osmo-dark text-white px-6 py-3 rounded-osmo font-bold hover:bg-gray-700 transition-all shadow-osmo"
           >
-            ← BACK TO HOME
+            ← Back to home
           </button>
           <div className="text-center">
-            <h1 className="text-4xl font-black text-white">POLICY GAP ANALYZER</h1>
-            <p className="text-pink-200">AI-powered compliance analysis</p>
+            <h1 className="text-4xl font-black text-osmo-dark">Policy Gap Analyzer</h1>
+            <p className="text-gray-600">AI-powered compliance analysis</p>
           </div>
           <div></div>
         </div>
@@ -127,23 +127,29 @@ function PolicyAnalyzer({ onNavigate, onDocumentUpload }) {
         <div className="w-full max-w-[70%] mx-auto space-y-8">
           
           {/* Instructions */}
-          <div className="bg-gradient-to-r from-cyan-800 to-blue-800 p-6 rounded-3xl border-4 border-cyan-400 shadow-[8px_8px_0px_0px_#06b6d4]">
-            <h2 className="text-2xl font-bold text-white mb-3">📋 HOW IT WORKS</h2>
-            <div className="grid md:grid-cols-3 gap-4 text-center">
-              <div className="bg-cyan-700 p-4 rounded-2xl border-2 border-cyan-300">
-                <div className="text-3xl mb-2">📁</div>
-                <p className="font-bold">1. UPLOAD PDF</p>
-                <p className="text-sm text-cyan-200">Select your policy document</p>
+          <div className="bg-white rounded-osmo-lg p-8 shadow-osmo-lg border border-gray-100">
+            <h2 className="text-2xl font-black text-osmo-dark mb-6 text-center">How it works</h2>
+            <div className="grid md:grid-cols-3 gap-6 text-center">
+              <div className="bg-gradient-to-b from-osmo-purple/5 to-osmo-purple/10 p-6 rounded-osmo">
+                <div className="w-16 h-16 bg-osmo-purple rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl text-white">📁</span>
+                </div>
+                <p className="font-bold text-osmo-dark mb-2">Upload PDF</p>
+                <p className="text-sm text-gray-600">Select your policy document</p>
               </div>
-              <div className="bg-cyan-700 p-4 rounded-2xl border-2 border-cyan-300">
-                <div className="text-3xl mb-2">🤖</div>
-                <p className="font-bold">2. AI ANALYSIS</p>
-                <p className="text-sm text-cyan-200">AI scans for compliance gaps</p>
+              <div className="bg-gradient-to-b from-osmo-blue/5 to-osmo-blue/10 p-6 rounded-osmo">
+                <div className="w-16 h-16 bg-osmo-blue rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl text-white">🤖</span>
+                </div>
+                <p className="font-bold text-osmo-dark mb-2">AI Analysis</p>
+                <p className="text-sm text-gray-600">AI scans for compliance gaps</p>
               </div>
-              <div className="bg-cyan-700 p-4 rounded-2xl border-2 border-cyan-300">
-                <div className="text-3xl mb-2">📊</div>
-                <p className="font-bold">3. GET RESULTS</p>
-                <p className="text-sm text-cyan-200">Detailed gap analysis & fixes</p>
+              <div className="bg-gradient-to-b from-osmo-green/5 to-osmo-green/10 p-6 rounded-osmo">
+                <div className="w-16 h-16 bg-osmo-green rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl text-white">📊</span>
+                </div>
+                <p className="font-bold text-osmo-dark mb-2">Get Results</p>
+                <p className="text-sm text-gray-600">Detailed gap analysis & fixes</p>
               </div>
             </div>
           </div>

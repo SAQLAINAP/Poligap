@@ -38,7 +38,7 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className="App bg-white min-h-screen">
       {renderPage()}
       
       {/* Chat Button - only show when document is uploaded */}

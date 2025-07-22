@@ -42,74 +42,66 @@ function ComplianceMonitor({ onNavigate }) {
       jurisdiction: 'US',
       status: 'Active',
       riskLevel: 'Medium',
-      lastChange: '2024-09-18'
+      lastChange: '2024-09-15'
     },
     { 
       id: 'pci', 
       name: 'PCI DSS', 
       fullName: 'Payment Card Industry Data Security Standard',
       jurisdiction: 'Global',
-      status: 'Updated',
+      status: 'Active',
       riskLevel: 'High',
-      lastChange: '2025-01-05'
-    }
+      lastChange: '2024-12-01'
+    },
   ];
 
-  // Mock alerts data
+  // Mock recent alerts data
   const mockAlerts = [
     {
       id: 1,
       regulation: 'GDPR',
-      type: 'Amendment',
-      severity: 'High',
-      title: 'New Data Transfer Requirements',
-      description: 'Updated requirements for international data transfers now require additional safeguards.',
-      date: '2025-01-15',
-      impact: 'Review and update data transfer agreements',
-      status: 'New'
+      type: 'Update',
+      severity: 'Medium',
+      title: 'New guidance on AI systems published',
+      description: 'European Data Protection Board releases updated guidance on automated decision-making',
+      date: '2024-12-15',
+      impact: 'Review AI/ML processes for compliance'
     },
     {
       id: 2,
       regulation: 'CCPA',
-      type: 'Guidance',
-      severity: 'Medium',
-      title: 'Consumer Rights Clarification',
-      description: 'California AG issued new guidance on consumer deletion rights.',
-      date: '2025-01-10',
-      impact: 'Update privacy policy and deletion procedures',
-      status: 'Reviewed'
+      type: 'Amendment',
+      severity: 'High',
+      title: 'CPRA enforcement updates',
+      description: 'New enforcement priorities announced by California Privacy Protection Agency',
+      date: '2024-12-10',
+      impact: 'Update privacy notice and consent mechanisms'
     },
     {
       id: 3,
       regulation: 'PCI DSS',
-      type: 'Update',
+      type: 'Standard Update',
       severity: 'High',
-      title: 'Version 4.0 Implementation',
-      description: 'PCI DSS v4.0 becomes mandatory for all assessments.',
-      date: '2025-01-05',
-      impact: 'Complete gap analysis and update security controls',
-      status: 'Action Required'
-    },
-    {
-      id: 4,
-      regulation: 'HIPAA',
-      type: 'Enforcement',
-      severity: 'Medium',
-      title: 'Increased Penalties',
-      description: 'HHS announces increased penalties for HIPAA violations.',
-      date: '2024-12-28',
-      impact: 'Review compliance program and risk assessment',
-      status: 'Acknowledged'
+      title: 'PCI DSS v4.0 transition deadline approaching',
+      description: 'Organizations must transition to PCI DSS v4.0 by March 2024',
+      date: '2024-12-01',
+      impact: 'Schedule security assessment and update controls'
     }
   ];
 
-  useEffect(() => {
-    // Simulate loading alerts
+  const startMonitoring = () => {
+    setMonitoring(true);
     setAlerts(mockAlerts);
-    setLastUpdate(new Date().toLocaleString());
-  }, []);
+    setLastUpdate(new Date());
+  };
 
-  const handleRegulationToggle = (regId) => {
+  const stopMonitoring = () => {
+    setMonitoring(false);
+    setAlerts([]);
+    setLastUpdate(null);
+  };
+
+  const toggleRegulation = (regId) => {
     setSelectedRegulations(prev => 
       prev.includes(regId) 
         ? prev.filter(id => id !== regId)
@@ -117,185 +109,206 @@ function ComplianceMonitor({ onNavigate }) {
     );
   };
 
-  const startMonitoring = async () => {
-    setMonitoring(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLastUpdate(new Date().toLocaleString());
-      setMonitoring(false);
-      // Add a new mock alert
-      const newAlert = {
-        id: Date.now(),
-        regulation: 'GDPR',
-        type: 'Update',
-        severity: 'Medium',
-        title: 'Real-time Monitoring Alert',
-        description: 'This is a simulated real-time update from the compliance monitoring system.',
-        date: new Date().toISOString().split('T')[0],
-        impact: 'Review for potential policy updates',
-        status: 'New'
-      };
-      setAlerts(prev => [newAlert, ...prev]);
-    }, 2000);
-  };
-
-  const getSeverityColor = (severity) => {
-    switch (severity) {
-      case 'High': return 'from-red-600 to-red-700 border-red-400';
-      case 'Medium': return 'from-yellow-600 to-orange-600 border-yellow-400';
-      case 'Low': return 'from-green-600 to-green-700 border-green-400';
-      default: return 'from-gray-600 to-gray-700 border-gray-400';
+  const getRiskColor = (level) => {
+    switch(level) {
+      case 'High': return 'text-red-600 bg-red-50';
+      case 'Medium': return 'text-yellow-600 bg-yellow-50';
+      case 'Low': return 'text-green-600 bg-green-50';
+      default: return 'text-gray-600 bg-gray-50';
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'New': return 'bg-red-500 text-white';
-      case 'Action Required': return 'bg-orange-500 text-white';
-      case 'Reviewed': return 'bg-blue-500 text-white';
-      case 'Acknowledged': return 'bg-green-500 text-white';
-      default: return 'bg-gray-500 text-white';
+  const getSeverityColor = (severity) => {
+    switch(severity) {
+      case 'High': return 'border-red-200 bg-red-50';
+      case 'Medium': return 'border-yellow-200 bg-yellow-50';
+      case 'Low': return 'border-green-200 bg-green-50';
+      default: return 'border-gray-200 bg-gray-50';
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-yellow-600 to-orange-700 p-6 border-b-4 border-yellow-400">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <button
-            onClick={() => onNavigate('home')}
-            className="bg-yellow-400 text-black px-6 py-3 rounded-2xl font-black border-4 border-yellow-300 hover:bg-yellow-300 transition-all shadow-[4px_4px_0px_0px_#000]"
-          >
-            ← BACK TO HOME
-          </button>
-          <div className="text-center">
-            <h1 className="text-4xl font-black text-white">COMPLIANCE MONITOR</h1>
-            <p className="text-yellow-200">Real-time regulation tracking</p>
-          </div>
-          <div></div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-6 py-12">
-        <div className="max-w-6xl mx-auto space-y-8">
-          
-          {/* Dashboard Stats */}
-          <div className="grid md:grid-cols-4 gap-6">
-            <div className="bg-gradient-to-br from-blue-800 to-blue-900 p-6 rounded-2xl border-4 border-blue-400 shadow-[4px_4px_0px_0px_#3b82f6]">
-              <div className="text-3xl mb-2">📊</div>
-              <div className="text-2xl font-black text-white">{selectedRegulations.length}</div>
-              <div className="text-blue-200">Monitored Regulations</div>
-            </div>
-            <div className="bg-gradient-to-br from-red-800 to-red-900 p-6 rounded-2xl border-4 border-red-400 shadow-[4px_4px_0px_0px_#ef4444]">
-              <div className="text-3xl mb-2">🚨</div>
-              <div className="text-2xl font-black text-white">{alerts.filter(a => a.status === 'New').length}</div>
-              <div className="text-red-200">New Alerts</div>
-            </div>
-            <div className="bg-gradient-to-br from-orange-800 to-orange-900 p-6 rounded-2xl border-4 border-orange-400 shadow-[4px_4px_0px_0px_#f97316]">
-              <div className="text-3xl mb-2">⚠️</div>
-              <div className="text-2xl font-black text-white">{alerts.filter(a => a.status === 'Action Required').length}</div>
-              <div className="text-orange-200">Action Required</div>
-            </div>
-            <div className="bg-gradient-to-br from-green-800 to-green-900 p-6 rounded-2xl border-4 border-green-400 shadow-[4px_4px_0px_0px_#22c55e]">
-              <div className="text-3xl mb-2">✅</div>
-              <div className="text-2xl font-black text-white">{alerts.filter(a => a.status === 'Acknowledged').length}</div>
-              <div className="text-green-200">Acknowledged</div>
-            </div>
-          </div>
-
-          {/* Monitoring Controls */}
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-3xl border-4 border-yellow-400 shadow-[8px_8px_0px_0px_#fbbf24]">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-purple-400 rounded-xl flex items-center justify-center border-4 border-black mr-4">
-                  <span className="text-2xl">⚙️</span>
-                </div>
-                <div>
-                  <h2 className="text-3xl font-black text-white">MONITORING CONTROLS</h2>
-                  <p className="text-gray-300">Last updated: {lastUpdate}</p>
-                </div>
-              </div>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        
+        {/* Header */}
+        <div className="bg-white rounded-osmo shadow-osmo p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
               <button
-                onClick={startMonitoring}
-                disabled={monitoring}
-                className="bg-gradient-to-r from-green-400 to-cyan-400 text-black text-lg font-black px-6 py-3 rounded-2xl border-4 border-green-300 shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] disabled:bg-gray-600 disabled:text-gray-400 transition-all transform"
+                onClick={() => onNavigate('landing')}
+                className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors"
               >
-                {monitoring ? '🔄 SCANNING...' : '🔍 SCAN NOW'}
+                <span className="text-xl">←</span>
               </button>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Compliance Monitor</h1>
+                <p className="text-gray-600">Real-time regulatory updates and alerts</p>
+              </div>
             </div>
-
-            {/* Regulation Selection */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {regulations.map(regulation => (
-                <label key={regulation.id} className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${selectedRegulations.includes(regulation.id) ? 'bg-yellow-700 border-yellow-400' : 'bg-gray-700 border-gray-500 hover:border-yellow-400'}`}>
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedRegulations.includes(regulation.id)}
-                      onChange={() => handleRegulationToggle(regulation.id)}
-                      className="mr-3 w-4 h-4"
-                    />
-                    <div>
-                      <div className="font-bold text-white">{regulation.name}</div>
-                      <div className="text-sm text-gray-300">{regulation.jurisdiction}</div>
-                    </div>
-                  </div>
-                  <div className={`px-2 py-1 rounded-lg text-xs font-bold ${
-                    regulation.riskLevel === 'High' ? 'bg-red-500' : 
-                    regulation.riskLevel === 'Medium' ? 'bg-yellow-500 text-black' : 'bg-green-500'
-                  }`}>
-                    {regulation.riskLevel}
-                  </div>
-                </label>
-              ))}
+            <div className="flex items-center space-x-4">
+              {monitoring ? (
+                <button
+                  onClick={stopMonitoring}
+                  className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-osmo font-semibold transition-colors duration-200"
+                >
+                  <span className="mr-2">⏹️</span>
+                  Stop Monitoring
+                </button>
+              ) : (
+                <button
+                  onClick={startMonitoring}
+                  className="bg-osmo-green hover:bg-green-600 text-white px-6 py-3 rounded-osmo font-semibold transition-colors duration-200"
+                >
+                  <span className="mr-2">▶️</span>
+                  Start Monitoring
+                </button>
+              )}
             </div>
           </div>
-
-          {/* Recent Alerts */}
-          <div className="bg-gradient-to-br from-purple-800 to-pink-900 p-8 rounded-3xl border-4 border-purple-400 shadow-[8px_8px_0px_0px_#a855f7]">
-            <div className="flex items-center mb-6">
-              <div className="w-12 h-12 bg-red-400 rounded-xl flex items-center justify-center border-4 border-black mr-4">
-                <span className="text-2xl">🚨</span>
-              </div>
-              <h2 className="text-3xl font-black text-white">RECENT ALERTS</h2>
-            </div>
-
-            <div className="space-y-4">
-              {alerts.slice(0, 5).map(alert => (
-                <div key={alert.id} className={`bg-gradient-to-r ${getSeverityColor(alert.severity)} p-6 rounded-2xl border-4 shadow-[4px_4px_0px_0px_#000]`}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="bg-white text-black px-3 py-1 rounded-lg font-bold mr-3">
-                        {alert.regulation}
-                      </div>
-                      <div className={`px-3 py-1 rounded-lg font-bold text-sm ${getStatusColor(alert.status)}`}>
-                        {alert.status}
-                      </div>
-                    </div>
-                    <div className="text-white text-sm">{alert.date}</div>
-                  </div>
-                  
-                  <h3 className="text-white font-bold text-lg mb-2">{alert.title}</h3>
-                  <p className="text-white mb-3">{alert.description}</p>
-                  
-                  <div className="bg-black bg-opacity-30 p-3 rounded-xl">
-                    <div className="text-white font-bold text-sm mb-1">💡 RECOMMENDED ACTION:</div>
-                    <div className="text-white text-sm">{alert.impact}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {alerts.length === 0 && (
-              <div className="text-center py-8 text-purple-200">
-                <div className="text-6xl mb-4">📊</div>
-                <p className="text-xl">No alerts at this time. Your compliance monitoring is up to date!</p>
-              </div>
-            )}
-          </div>
-
         </div>
+
+        {/* Status Banner */}
+        <div className={`rounded-osmo p-4 ${monitoring ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className={`w-3 h-3 rounded-full ${monitoring ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+              <span className="font-semibold text-gray-900">
+                {monitoring ? 'Actively Monitoring' : 'Monitoring Disabled'}
+              </span>
+              {lastUpdate && (
+                <span className="text-sm text-gray-600">
+                  Last update: {lastUpdate.toLocaleString()}
+                </span>
+              )}
+            </div>
+            <div className="text-sm text-gray-600">
+              {selectedRegulations.length} regulation{selectedRegulations.length !== 1 ? 's' : ''} selected
+            </div>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          
+          {/* Regulation Selection */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-osmo shadow-osmo p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Select Regulations to Monitor</h2>
+              <div className="space-y-3">
+                {regulations.map(reg => (
+                  <div key={reg.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center mb-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedRegulations.includes(reg.id)}
+                            onChange={() => toggleRegulation(reg.id)}
+                            className="mr-3 w-4 h-4 text-osmo-blue focus:ring-osmo-blue border-gray-300 rounded"
+                          />
+                          <div>
+                            <div className="font-semibold text-gray-900">{reg.name}</div>
+                            <div className="text-sm text-gray-600">{reg.fullName}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">{reg.jurisdiction}</span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getRiskColor(reg.riskLevel)}`}>
+                            {reg.riskLevel} Risk
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          Last change: {reg.lastChange}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Alerts and Updates */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-osmo shadow-osmo p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Alerts & Updates</h2>
+              
+              {!monitoring ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">📡</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Start Monitoring</h3>
+                  <p className="text-gray-600 mb-4">Enable monitoring to receive real-time regulatory updates and alerts</p>
+                  <button
+                    onClick={startMonitoring}
+                    className="bg-osmo-blue hover:bg-blue-600 text-white px-6 py-3 rounded-osmo font-semibold transition-colors duration-200"
+                  >
+                    Begin Monitoring
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {alerts.map(alert => (
+                    <div key={alert.id} className={`border rounded-lg p-4 ${getSeverityColor(alert.severity)}`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="font-semibold text-osmo-purple">{alert.regulation}</span>
+                            <span className="bg-osmo-blue text-white px-2 py-1 rounded-full text-xs font-semibold">
+                              {alert.type}
+                            </span>
+                          </div>
+                          <h3 className="font-semibold text-gray-900 mb-1">{alert.title}</h3>
+                          <p className="text-gray-600 text-sm mb-2">{alert.description}</p>
+                        </div>
+                        <div className="text-right ml-4">
+                          <div className="text-sm font-semibold text-gray-900">{alert.date}</div>
+                          <div className={`text-xs px-2 py-1 rounded-full mt-1 ${
+                            alert.severity === 'High' ? 'bg-red-100 text-red-800' :
+                            alert.severity === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-green-100 text-green-800'
+                          }`}>
+                            {alert.severity}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-white bg-opacity-50 rounded p-3">
+                        <div className="text-sm font-semibold text-gray-700 mb-1">Recommended Action:</div>
+                        <div className="text-sm text-gray-600">{alert.impact}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Compliance Dashboard */}
+        {monitoring && (
+          <div className="bg-white rounded-osmo shadow-osmo p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Compliance Dashboard</h2>
+            <div className="grid md:grid-cols-4 gap-4">
+              <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                <div className="text-3xl font-bold text-green-600">3</div>
+                <div className="text-sm text-gray-600">Active Monitors</div>
+              </div>
+              <div className="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div className="text-3xl font-bold text-yellow-600">{alerts.length}</div>
+                <div className="text-sm text-gray-600">Recent Alerts</div>
+              </div>
+              <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="text-3xl font-bold text-blue-600">98%</div>
+                <div className="text-sm text-gray-600">Uptime</div>
+              </div>
+              <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <div className="text-3xl font-bold text-purple-600">24/7</div>
+                <div className="text-sm text-gray-600">Coverage</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,14 +5,34 @@
 /* Custom base styles */
 @layer base {
   body {
-    @apply bg-gray-900 text-white font-sans;
+    @apply bg-osmo-gray text-osmo-dark font-sans min-h-screen;
+    letter-spacing: 0.01em;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-black text-osmo-dark;
+    letter-spacing: -0.01em;
+  }
+  p {
+    @apply text-osmo-dark text-lg;
+  }
+  a {
+    @apply text-osmo-blue underline hover:text-osmo-purple transition-colors;
   }
 }
 
 /* Custom utility classes */
 @layer utilities {
-  .shadow-neo {
-    box-shadow: 8px 8px 0px rgba(0, 0, 0, 1);
+  .shadow-osmo {
+    box-shadow: 0 4px 24px 0 rgba(43, 43, 43, 0.10);
+  }
+  .shadow-osmo-lg {
+    box-shadow: 0 8px 32px 0 rgba(43, 43, 43, 0.18);
+  }
+  .rounded-osmo {
+    border-radius: 1.5rem;
+  }
+  .rounded-osmo-lg {
+    border-radius: 2.5rem;
   }
   
   /* Hide scrollbar for WebKit browsers */

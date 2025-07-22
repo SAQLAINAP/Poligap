@@ -11,18 +11,18 @@ function ChatButton({ onClick, hasDocument }) {
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full border-4 border-purple-300 shadow-[6px_6px_0px_0px_#000] hover:shadow-[8px_8px_0px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all transform group"
+        className="bg-osmo-purple text-white p-4 rounded-full shadow-osmo-lg hover:shadow-osmo hover:transform hover:translate-y-[-2px] transition-all duration-300 group"
       >
         <div className="w-8 h-8 flex items-center justify-center">
-          <span className="text-2xl group-hover:animate-bounce">💬</span>
+          <span className="text-2xl group-hover:scale-110 transition-transform">💬</span>
         </div>
       </button>
       
       {/* Tooltip */}
       {isHovered && (
-        <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-black text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap border-2 border-purple-400 shadow-[4px_4px_0px_0px_#a855f7]">
+        <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-osmo-dark text-white px-4 py-2 rounded-osmo text-sm whitespace-nowrap shadow-osmo">
           Chat with AI Expert
-          <div className="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-l-8 border-l-black border-t-4 border-t-transparent border-b-4 border-b-transparent"></div>
+          <div className="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-l-8 border-l-osmo-dark border-t-4 border-t-transparent border-b-4 border-b-transparent"></div>
         </div>
       )}
     </div>

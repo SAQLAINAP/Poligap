@@ -4,14 +4,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        'neon-pink': '#FF007F',
-        'neon-green': '#00FF7F',
-        'neon-blue': '#00B7EB',
-        'neon-yellow': '#FFFF00',
-        'neon-red': '#FF4040',
+        'osmo-blue': '#3B82F6',
+        'osmo-purple': '#8B5CF6',
+        'osmo-pink': '#EC4899',
+        'osmo-cyan': '#06B6D4',
+        'osmo-green': '#22C55E',
+        'osmo-yellow': '#FACC15',
+        'osmo-gray': '#F3F4F6',
+        'osmo-dark': '#18181B',
       },
       boxShadow: {
-        'neo': '8px 8px 0px rgba(0, 0, 0, 1)',
+        'osmo': '0 4px 24px 0 rgba(43, 43, 43, 0.10)',
+        'osmo-lg': '0 8px 32px 0 rgba(43, 43, 43, 0.18)',
+      },
+      borderRadius: {
+        'osmo': '1.5rem',
+        'osmo-lg': '2.5rem',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
